@@ -16,8 +16,8 @@ Yunqi
 
 ## Outline
 
-### Week 1
+### Week 0
 
-- About this course
+- About this course/discussion
 - JS Basics
 - Tiny-graphics and Assignment 1
