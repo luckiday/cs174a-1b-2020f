@@ -69,7 +69,7 @@ M_1\begin{bmatrix}
 \begin{bmatrix}
 \boldsymbol{i}'&\boldsymbol{j}' &\boldsymbol{k}' &O'
 \end{bmatrix}
-\label{eq:m4}
+\label{eq:m3}
 \tag{*1}
 \end{equation}
 $$
