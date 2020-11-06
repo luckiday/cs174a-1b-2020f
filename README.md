@@ -1,7 +1,5 @@
 # CS174A Computer Graphics, Fall 2020
 
-------
-
 Dear students,
 
 \
