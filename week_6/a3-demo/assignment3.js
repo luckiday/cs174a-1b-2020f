@@ -24,8 +24,8 @@ export class Assignment3 extends Scene {
         this.materials = {
             test: new Material(new defs.Phong_Shader(),
                 {ambient: .4, diffusivity: .6, color: hex_color("#ffffff")}),
-            test2: new Material(new Gouraud_Shader(),
-                {ambient: .4, diffusivity: .6, color: hex_color("#992828")}),
+            gouraud: new Material(new Gouraud_Shader(),
+                {ambient: .1, specularity:.3, diffusivity: .8, color: hex_color("#992828")}),
             ring: new Material(new Ring_Shader()),
             // TODO:  Fill in as many additional material objects as needed in this key/value table.
             //        (Requirement 4)
@@ -87,12 +87,12 @@ export class Assignment3 extends Scene {
         const t = program_state.animation_time / 1000, dt = program_state.animation_delta_time / 1000;
         const yellow = hex_color("#d0a450");
         model_transform = Mat4.identity();
-        model_transform = model_transform.times(Mat4.rotation(2 * Math.PI * t / 5, 0, 1, 0));
+        model_transform = model_transform.times(Mat4.rotation(2 * Math.PI * 1 / 5, 0, 1, 0));
         model_transform = model_transform.times(Mat4.translation(10, 0, 0));
         model_transform = model_transform.times(Mat4.rotation(-2 * Math.PI * t /2, 0, 1, 0));
         model_transform = model_transform.times(Mat4.scale(2,2,2));
-        // this.shapes.sphere.draw(context, program_state, model_transform, this.materials.test.override({color: yellow}));
-        this.shapes.torus2.draw(context, program_state, model_transform, this.materials.ring);
+        this.shapes.sphere.draw(context, program_state, model_transform, this.materials.gouraud.override({color: yellow}));
+        // this.shapes.torus2.draw(context, program_state, model_transform, this.materials.ring);
         this.planet_1 = model_transform;
     }
 }
@@ -121,6 +121,10 @@ class Gouraud_Shader extends Shader {
         // on to the next phase (fragment shader), then interpolated per-fragment, weighted by the
         // pixel fragment's proximity to each of the 3 vertices (barycentric interpolation).
         varying vec3 N, vertex_worldspace;
+        
+        // Gouraud Shader
+        varying vec4 VERTEX_COLOR;
+        
         // ***** PHONG SHADING HAPPENS HERE: *****                                       
         vec3 phong_model_lights( vec3 N, vec3 vertex_worldspace ){                                        
             // phong_model_lights():  Add up the lights' contributions.
@@ -168,6 +172,11 @@ class Gouraud_Shader extends Shader {
                 // The final normal vector in screen space.
                 N = normalize( mat3( model_transform ) * normal / squared_scale);
                 vertex_worldspace = ( model_transform * vec4( position, 1.0 ) ).xyz;
+                
+                // Gouraud Shader
+                vec4 color = vec4( shape_color.xyz * ambient, shape_color.w );
+                color.xyz += phong_model_lights( normalize( N ), vertex_worldspace );
+                VERTEX_COLOR = color; 
             } `;
     }
 
@@ -178,9 +187,9 @@ class Gouraud_Shader extends Shader {
         return this.shared_glsl_code() + `
             void main(){                                                           
                 // Compute an initial (ambient) color:
-                gl_FragColor = vec4( shape_color.xyz * ambient, shape_color.w );
+                // gl_FragColor = vec4( shape_color.xyz * ambient, shape_color.w );
                 // Compute the final color with contributions from lights:
-                gl_FragColor.xyz += phong_model_lights( normalize( N ), vertex_worldspace );
+                gl_FragColor = VERTEX_COLOR;
             } `;
     }
 
